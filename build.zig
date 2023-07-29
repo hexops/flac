@@ -2,8 +2,9 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 pub fn build(b: *std.Build) void {
-    const target = b.standardTargetOptions(.{});
+    const cross_target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const target = cross_target.toTarget();
 
     const config_header = b.addConfigHeader(
         .{
@@ -11,20 +12,21 @@ pub fn build(b: *std.Build) void {
             .include_path = "config.h",
         },
         .{
-            .CPU_IS_BIG_ENDIAN = builtin.target.cpu.arch.endian() == .Big,
-            .FLAC__CPU_ARM64 = builtin.target.cpu.arch.isAARCH64(),
-            .ENABLE_64_BIT_WORDS = builtin.target.ptrBitWidth() == 64,
-            .FLAC__ALIGN_MALLOC_DATA = builtin.target.cpu.arch.isX86(),
-            .FLAC__SYS_DARWIN = builtin.target.isDarwin(),
-            .FLAC__SYS_LINUX = builtin.target.os.tag == .linux,
-            .HAVE_BYTESWAP_H = true,
-            .HAVE_CPUID_H = true,
+            .CPU_IS_BIG_ENDIAN = target.cpu.arch.endian() == .Big,
+            .ENABLE_64_BIT_WORDS = target.ptrBitWidth() == 64,
+            .FLAC__ALIGN_MALLOC_DATA = target.cpu.arch.isX86(),
+            .FLAC__CPU_ARM64 = target.cpu.arch.isAARCH64(),
+            .FLAC__SYS_DARWIN = target.isDarwin(),
+            .FLAC__SYS_LINUX = target.os.tag == .linux,
+            .HAVE_BYTESWAP_H = target.os.tag == .linux,
+            .HAVE_CPUID_H = target.cpu.arch.isX86(),
             .HAVE_FSEEKO = true,
+            .HAVE_ICONV = target.os.tag != .windows,
             .HAVE_INTTYPES_H = true,
             .HAVE_MEMORY_H = true,
             .HAVE_STDINT_H = true,
-            .HAVE_STDLIB_H = true,
             .HAVE_STRING_H = true,
+            .HAVE_STDLIB_H = true,
             .HAVE_TYPEOF = true,
             .HAVE_UNISTD_H = true,
         },
@@ -32,15 +34,18 @@ pub fn build(b: *std.Build) void {
 
     const lib = b.addStaticLibrary(.{
         .name = "flac",
-        .target = target,
+        .target = cross_target,
         .optimize = optimize,
     });
+    lib.linkLibC();
+    lib.defineCMacro("HAVE_CONFIG_H", null);
+    if (target.os.tag == .windows) lib.defineCMacro("FLAC__NO_DLL", null);
     lib.addConfigHeader(config_header);
     lib.addIncludePath("include");
     lib.addIncludePath("src/libFLAC/include");
     lib.addCSourceFiles(&sources, &.{});
-    lib.defineCMacro("HAVE_CONFIG_H", null);
-    lib.linkLibC();
+    lib.installConfigHeader(config_header, .{});
+    lib.installHeadersDirectory("include", "");
     b.installArtifact(lib);
 }
 
