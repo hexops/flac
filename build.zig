@@ -39,17 +39,20 @@ pub fn build(b: *std.Build) void {
     });
     lib.linkLibC();
     lib.defineCMacro("HAVE_CONFIG_H", null);
-    if (target.os.tag == .windows) lib.defineCMacro("FLAC__NO_DLL", null);
     lib.addConfigHeader(config_header);
     lib.addIncludePath("include");
     lib.addIncludePath("src/libFLAC/include");
-    lib.addCSourceFiles(&sources, &.{});
+    lib.addCSourceFiles(sources, &.{});
+    if (target.os.tag == .windows) {
+        lib.defineCMacro("FLAC__NO_DLL", null);
+        lib.addCSourceFiles(sources_windows, &.{});
+    }
     lib.installConfigHeader(config_header, .{});
     lib.installHeadersDirectory("include", "");
     b.installArtifact(lib);
 }
 
-const sources = [_][]const u8{
+const sources = &[_][]const u8{
     "src/libFLAC/bitmath.c",
     "src/libFLAC/bitreader.c",
     "src/libFLAC/bitwriter.c",
@@ -79,4 +82,8 @@ const sources = [_][]const u8{
     "src/libFLAC/stream_encoder_intrin_avx2.c",
     "src/libFLAC/stream_encoder_framing.c",
     "src/libFLAC/window.c",
+};
+
+const sources_windows = &[_][]const u8{
+    "src/share/win_utf8_io/win_utf8_io.c",
 };
