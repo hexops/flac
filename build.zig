@@ -40,8 +40,8 @@ pub fn build(b: *std.Build) void {
     lib.linkLibC();
     lib.defineCMacro("HAVE_CONFIG_H", null);
     lib.addConfigHeader(config_header);
-    lib.addIncludePath("include");
-    lib.addIncludePath("src/libFLAC/include");
+    lib.addIncludePath(.{ .path = "include" });
+    lib.addIncludePath(.{ .path = "src/libFLAC/include" });
     lib.addCSourceFiles(sources, &.{});
     if (target.os.tag == .windows) {
         lib.defineCMacro("FLAC__NO_DLL", null);
