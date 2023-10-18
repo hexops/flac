@@ -42,10 +42,10 @@ pub fn build(b: *std.Build) void {
     lib.addConfigHeader(config_header);
     lib.addIncludePath(.{ .path = "include" });
     lib.addIncludePath(.{ .path = "src/libFLAC/include" });
-    lib.addCSourceFiles(sources, &.{});
+    lib.addCSourceFiles(.{ .files = sources, .flags = &.{} });
     if (target.os.tag == .windows) {
         lib.defineCMacro("FLAC__NO_DLL", null);
-        lib.addCSourceFiles(sources_windows, &.{});
+        lib.addCSourceFiles(.{ .files = sources_windows, .flags = &.{} });
     }
     lib.installConfigHeader(config_header, .{});
     lib.installHeadersDirectory("include", "");
