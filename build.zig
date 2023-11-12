@@ -12,7 +12,7 @@ pub fn build(b: *std.Build) void {
             .include_path = "config.h",
         },
         .{
-            .CPU_IS_BIG_ENDIAN = target.cpu.arch.endian() == .Big,
+            .CPU_IS_BIG_ENDIAN = target.cpu.arch.endian() == .big,
             .ENABLE_64_BIT_WORDS = target.ptrBitWidth() == 64,
             .FLAC__ALIGN_MALLOC_DATA = target.cpu.arch.isX86(),
             .FLAC__CPU_ARM64 = target.cpu.arch.isAARCH64(),
