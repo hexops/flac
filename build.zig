@@ -4,7 +4,7 @@ const builtin = @import("builtin");
 pub fn build(b: *std.Build) void {
     const cross_target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-    const target = cross_target.toTarget();
+    const target = cross_target.result;
 
     const config_header = b.addConfigHeader(
         .{
@@ -12,7 +12,7 @@ pub fn build(b: *std.Build) void {
             .include_path = "config.h",
         },
         .{
-            .CPU_IS_BIG_ENDIAN = target.cpu.arch.endian() == .Big,
+            .CPU_IS_BIG_ENDIAN = target.cpu.arch.endian() == .big,
             .ENABLE_64_BIT_WORDS = target.ptrBitWidth() == 64,
             .FLAC__ALIGN_MALLOC_DATA = target.cpu.arch.isX86(),
             .FLAC__CPU_ARM64 = target.cpu.arch.isAARCH64(),
