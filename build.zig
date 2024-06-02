@@ -8,7 +8,7 @@ pub fn build(b: *std.Build) void {
 
     const config_header = b.addConfigHeader(
         .{
-            .style = .{ .cmake = .{ .path = "config.cmake.h.in" } },
+            .style = .{ .cmake = b.path("config.cmake.h.in") },
             .include_path = "config.h",
         },
         .{
@@ -40,15 +40,15 @@ pub fn build(b: *std.Build) void {
     lib.linkLibC();
     lib.defineCMacro("HAVE_CONFIG_H", null);
     lib.addConfigHeader(config_header);
-    lib.addIncludePath(.{ .path = "include" });
-    lib.addIncludePath(.{ .path = "src/libFLAC/include" });
+    lib.addIncludePath(b.path("include"));
+    lib.addIncludePath(b.path("src/libFLAC/include"));
     lib.addCSourceFiles(.{ .files = sources, .flags = &.{} });
     if (target.os.tag == .windows) {
         lib.defineCMacro("FLAC__NO_DLL", null);
         lib.addCSourceFiles(.{ .files = sources_windows, .flags = &.{} });
     }
-    lib.installConfigHeader(config_header, .{});
-    lib.installHeadersDirectory("include", "");
+    lib.installConfigHeader(config_header);
+    lib.installHeadersDirectory(b.path("include"), "", .{});
     b.installArtifact(lib);
 }
 
