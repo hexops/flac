@@ -29,6 +29,10 @@ pub fn build(b: *std.Build) void {
             .HAVE_STDLIB_H = true,
             .HAVE_TYPEOF = true,
             .HAVE_UNISTD_H = true,
+            .GIT_COMMIT_DATE = "GIT_COMMIT_DATE",
+            .GIT_COMMIT_HASH = "GIT_COMMIT_HASH",
+            .GIT_COMMIT_TAG = "GIT_COMMIT_TAG",
+            .PROJECT_VERSION = "hexops/flac",
         },
     );
 
