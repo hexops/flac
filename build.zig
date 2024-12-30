@@ -42,13 +42,13 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     lib.linkLibC();
-    lib.defineCMacro("HAVE_CONFIG_H", null);
+    lib.root_module.addCMacro("HAVE_CONFIG_H", "1");
     lib.addConfigHeader(config_header);
     lib.addIncludePath(b.path("include"));
     lib.addIncludePath(b.path("src/libFLAC/include"));
     lib.addCSourceFiles(.{ .files = sources, .flags = &.{} });
     if (target.os.tag == .windows) {
-        lib.defineCMacro("FLAC__NO_DLL", null);
+        lib.root_module.addCMacro("FLAC__NO_DLL", "1");
         lib.addCSourceFiles(.{ .files = sources_windows, .flags = &.{} });
     }
     lib.installConfigHeader(config_header);
